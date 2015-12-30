@@ -39,7 +39,8 @@ public:
     BfProgram(const std::string code):
         code(code),
         brackets(get_bracket_map(code)),
-        last_valid_pc(code.length() - 1)
+        last_valid_pc(code.length() - 1),
+        cfg(nullptr)
     {
         BF_CF_INSTRS.emplace(BF_INSTR_SKIPFWD);
         BF_CF_INSTRS.emplace(BF_INSTR_SKIPBACK);
