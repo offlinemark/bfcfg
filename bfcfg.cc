@@ -14,6 +14,11 @@ const char BfProgram::BF_INSTR_SKIPFWD;
 const char BfProgram::BF_INSTR_SKIPBACK;
 std::unordered_set<char> BfProgram::BF_CF_INSTRS;
 
+BfProgram::~BfProgram() {
+    std::unordered_set<BasicBlock*> visited;
+    destroy_cfg(cfg, visited);
+}
+
 BasicBlock *BfProgram::generate_bb(size_t pc) const {
     static std::map<size_t, BasicBlock*> cache;
 
@@ -36,11 +41,11 @@ BasicBlock *BfProgram::generate_bb(size_t pc) const {
     if (tmp_pc > last_valid_pc) {
         bb->true_addr = tmp_pc;
         bb->false_addr = tmp_pc;
-    } else if (tmp_pc == BF_INSTR_SKIPFWD) {
+    } else if (code[tmp_pc] == BF_INSTR_SKIPFWD) {
         bb->instructions.emplace_back(BF_INSTR_SKIPFWD);
         bb->true_addr = tmp_pc + 1;
         bb->false_addr = brackets.at(tmp_pc) + 1;
-    } else if (tmp_pc == BF_INSTR_SKIPBACK) {
+    } else if (code[tmp_pc] == BF_INSTR_SKIPBACK) {
         bb->instructions.emplace_back(BF_INSTR_SKIPBACK);
         bb->true_addr = brackets.at(tmp_pc) + 1;
         bb->false_addr = tmp_pc + 1;
@@ -84,4 +89,24 @@ BracketMap BfProgram::get_bracket_map (const std::string &code) const {
         }
     }
     return brackets;
+}
+
+void BfProgram::destroy_cfg(BasicBlock *cfg,
+                            std::unordered_set<BasicBlock*> &visited) {
+    if (!cfg || visited.count(cfg)) {
+        return;
+    }
+
+    BasicBlock *saved_true_bb = cfg->true_bb;
+    BasicBlock *saved_false_bb = cfg->false_bb;
+
+    visited.emplace(cfg);
+    delete cfg;
+
+    if (saved_true_bb) {
+        destroy_cfg(saved_true_bb, visited);
+    }
+    if (saved_false_bb) {
+        destroy_cfg(saved_false_bb, visited);
+    }
 }

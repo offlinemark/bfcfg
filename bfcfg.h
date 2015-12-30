@@ -32,6 +32,7 @@ class BfProgram {
 
     BracketMap get_bracket_map(const std::string &code) const;
     BasicBlock *_generate_cfg(size_t pc) const;
+    void destroy_cfg(BasicBlock *cfg, std::unordered_set<BasicBlock*> &visited);
     BasicBlock *generate_bb(size_t pc) const;
 
 public:
@@ -44,8 +45,12 @@ public:
         BF_CF_INSTRS.emplace(BF_INSTR_SKIPBACK);
     };
 
-    BasicBlock *generate_cfg() {
-        return _generate_cfg(0);
+    ~BfProgram();
+
+    void generate_cfg() {
+        cfg = _generate_cfg(0);
     }
+
+    BasicBlock *cfg;
 };
 
