@@ -16,6 +16,11 @@ std::unordered_set<char> BfProgram::BF_CF_INSTRS;
 
 BfProgram::~BfProgram() {
     std::unordered_set<BasicBlock*> visited;
+    /* dfs(cfg, visited, [](BasicBlock *cfg){ */
+    /*     /1* delete cfg; *1/ */
+    /*         std::cout << cfg << std::endl; */
+    /*         ; */
+    /* }); */
     destroy_cfg(cfg, visited);
 }
 
@@ -101,7 +106,30 @@ void BfProgram::destroy_cfg(BasicBlock *cfg,
     BasicBlock *saved_false_bb = cfg->false_bb;
 
     visited.emplace(cfg);
+    /* std::cout << cfg << std::endl; */
     delete cfg;
+
+    if (saved_true_bb) {
+        destroy_cfg(saved_true_bb, visited);
+    }
+    if (saved_false_bb) {
+        destroy_cfg(saved_false_bb, visited);
+    }
+}
+
+void BfProgram::dfs(BasicBlock *cfg,
+                    std::unordered_set<BasicBlock*> &visited,
+                    std::function<void(BasicBlock*)> callback) {
+    if (!cfg || visited.count(cfg)) {
+        return;
+    }
+
+    BasicBlock *saved_true_bb = cfg->true_bb;
+    BasicBlock *saved_false_bb = cfg->false_bb;
+
+    visited.emplace(cfg);
+    callback(cfg);
+    /* delete cfg; */
 
     if (saved_true_bb) {
         destroy_cfg(saved_true_bb, visited);

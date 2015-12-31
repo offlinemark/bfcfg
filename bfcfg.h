@@ -15,8 +15,8 @@ struct BasicBlock {
     size_t addr;
     size_t true_addr;
     size_t false_addr;
-    BasicBlock *true_bb;
-    BasicBlock *false_bb;
+    BasicBlock *true_bb ;
+    BasicBlock *false_bb ;
     std::vector<char> instructions;
 };
 
@@ -33,6 +33,8 @@ class BfProgram {
     BracketMap get_bracket_map(const std::string &code) const;
     BasicBlock *_generate_cfg(size_t pc) const;
     void destroy_cfg(BasicBlock *cfg, std::unordered_set<BasicBlock*> &visited);
+    void dfs(BasicBlock *cfg, std::unordered_set<BasicBlock*> &visited,
+            std::function<void(BasicBlock*)> callback);
     BasicBlock *generate_bb(size_t pc) const;
 
 public:
