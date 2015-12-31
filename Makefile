@@ -1,2 +1,2 @@
 all:
-	g++ bfcfg.cc main.cc -o bfcfg -std=c++11 -g
+	g++ bfcfg.cc main.cc -o main -std=c++11 -g
