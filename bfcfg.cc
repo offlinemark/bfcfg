@@ -1,6 +1,7 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
+#include <queue>
 #include <iostream>
 #include <stack>
 #include <string>
@@ -10,18 +11,15 @@
 
 #include "bfcfg.h"
 
-const char BfProgram::BF_INSTR_SKIPFWD;
-const char BfProgram::BF_INSTR_SKIPBACK;
-std::unordered_set<char> BfProgram::BF_CF_INSTRS;
+const char BfProgram::BF_INSTR_SKIPFWD = '[';
+const char BfProgram::BF_INSTR_SKIPBACK = ']';
+const std::unordered_set<char> BfProgram::BF_CF_INSTRS{BF_INSTR_SKIPFWD,
+        BF_INSTR_SKIPBACK};
 
 BfProgram::~BfProgram() {
-    std::unordered_set<BasicBlock*> visited;
-    /* dfs(cfg, visited, [](BasicBlock *cfg){ */
-    /*     /1* delete cfg; *1/ */
-    /*         std::cout << cfg << std::endl; */
-    /*         ; */
-    /* }); */
-    destroy_cfg(cfg, visited);
+    dfs([](BasicBlock *cfg){
+        delete cfg;
+    });
 }
 
 BasicBlock *BfProgram::generate_bb(size_t pc) const {
@@ -96,28 +94,7 @@ BracketMap BfProgram::get_bracket_map (const std::string &code) const {
     return brackets;
 }
 
-void BfProgram::destroy_cfg(BasicBlock *cfg,
-                            std::unordered_set<BasicBlock*> &visited) {
-    if (!cfg || visited.count(cfg)) {
-        return;
-    }
-
-    BasicBlock *saved_true_bb = cfg->true_bb;
-    BasicBlock *saved_false_bb = cfg->false_bb;
-
-    visited.emplace(cfg);
-    /* std::cout << cfg << std::endl; */
-    delete cfg;
-
-    if (saved_true_bb) {
-        destroy_cfg(saved_true_bb, visited);
-    }
-    if (saved_false_bb) {
-        destroy_cfg(saved_false_bb, visited);
-    }
-}
-
-void BfProgram::dfs(BasicBlock *cfg,
+void BfProgram::_dfs(BasicBlock *cfg,
                     std::unordered_set<BasicBlock*> &visited,
                     std::function<void(BasicBlock*)> callback) {
     if (!cfg || visited.count(cfg)) {
@@ -132,9 +109,34 @@ void BfProgram::dfs(BasicBlock *cfg,
     /* delete cfg; */
 
     if (saved_true_bb) {
-        destroy_cfg(saved_true_bb, visited);
+        _dfs(saved_true_bb, visited, callback);
     }
     if (saved_false_bb) {
-        destroy_cfg(saved_false_bb, visited);
+        _dfs(saved_false_bb, visited, callback);
     }
+}
+
+void BfProgram::_bfs(BasicBlock *cfg,
+                std::function<void(BasicBlock*)> callback) {
+    std::queue<BasicBlock*> q;
+    std::unordered_set<BasicBlock*> visited;
+
+    q.push(cfg);
+
+    while (!q.empty()) {
+        BasicBlock *bb = q.front();
+        q.pop();
+        if (visited.count(bb)) {
+            continue;
+        }
+        visited.emplace(bb);
+        callback(bb);
+        if (bb->true_bb) {
+            q.push(bb->true_bb);
+        }
+        if (bb->false_bb) {
+            q.push(bb->false_bb);
+        }
+    }
+
 }

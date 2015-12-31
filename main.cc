@@ -4,43 +4,48 @@
 #include <cstdio>
 #include <queue>
 
-void visit(BasicBlock *bb) {
-    std::cout << bb << " "<< bb->addr << std::endl;
-}
+void bfs_callback_dot(BasicBlock *bb) {
+    // Example line this function produces
+    // 0[shape=record,label="{0 | +++[}"];0->4;0->18;
 
-void bfs(BasicBlock *cfg) {
-    std::queue<BasicBlock*> q;
-    std::unordered_set<BasicBlock*> visited;
-
-    q.push(cfg);
-
-    while (!q.empty()) {
-        BasicBlock *bb = q.front();
-        q.pop();
-        if (visited.count(bb)) {
-            continue;
-        }
-        visited.emplace(bb);
-        visit(bb);
-        if (bb->true_bb) {
-            q.push(bb->true_bb);
-        }
-        if (bb->false_bb) {
-            q.push(bb->false_bb);
-        }
+    std::cout << bb->addr << "[shape=record,label=\"{" << bb->addr
+        << " | ";
+    for (char c : bb->instructions) {
+        if (c == '<' || c == '>')
+            std::cout << "\\";
+        std::cout << c;
     }
+    std::cout << "}\"];";
 
+    std::cout << bb->addr << "->";
+    if (bb->true_bb)
+        std::cout << bb->true_bb->addr;
+    else
+        std::cout << "None";
+    if (bb == bb->true_bb)
+        std::cout << "[dir=back]";
+    std::cout << ";";
 
+    std::cout << bb->addr << "->";
+    if (bb->false_bb)
+        std::cout << bb->false_bb->addr;
+    else
+        std::cout << "None";
+    std::cout << ";";
+    std::cout << std::endl;
 }
 
 int main(int argc, char **argv) {
-    /* std::string code = "+++[->,.[+++---]<]---"; */
+    std::string code = "+++[->,.[+++---]<]---";
     /* std::string code = "+++[->,.<]"; */
-    std::string code = "+++[->,.<]---";
+    /* std::string code = "+++[->,.<]---"; */
     /* std::string code = ",."; */
+
     BfProgram prog {code};
     prog.generate_cfg();
-    BasicBlock *cfg = prog.cfg;
-    bfs(cfg);
+    std::cout << "digraph graf {\n";
+    prog.bfs(bfs_callback_dot);
+    std::cout << "None[shape=record];\n";
+    std::cout << "}\n";
     return 0;
 }

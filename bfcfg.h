@@ -22,9 +22,9 @@ struct BasicBlock {
 
 
 class BfProgram {
-    static const char BF_INSTR_SKIPFWD = '[';
-    static const char BF_INSTR_SKIPBACK = ']';
-    static std::unordered_set<char> BF_CF_INSTRS;
+    static const char BF_INSTR_SKIPFWD;
+    static const char BF_INSTR_SKIPBACK;
+    static const std::unordered_set<char> BF_CF_INSTRS;
 
     const std::string code;
     const size_t last_valid_pc;
@@ -32,10 +32,12 @@ class BfProgram {
 
     BracketMap get_bracket_map(const std::string &code) const;
     BasicBlock *_generate_cfg(size_t pc) const;
-    void destroy_cfg(BasicBlock *cfg, std::unordered_set<BasicBlock*> &visited);
-    void dfs(BasicBlock *cfg, std::unordered_set<BasicBlock*> &visited,
-            std::function<void(BasicBlock*)> callback);
     BasicBlock *generate_bb(size_t pc) const;
+    void _dfs(BasicBlock *cfg,
+                std::unordered_set<BasicBlock*> &visited,
+                std::function<void(BasicBlock*)> callback);
+    void _bfs(BasicBlock *cfg, 
+                std::function<void(BasicBlock*)> callback);
 
 public:
     BfProgram(const std::string code):
@@ -43,12 +45,18 @@ public:
         brackets(get_bracket_map(code)),
         last_valid_pc(code.length() - 1),
         cfg(nullptr)
-    {
-        BF_CF_INSTRS.emplace(BF_INSTR_SKIPFWD);
-        BF_CF_INSTRS.emplace(BF_INSTR_SKIPBACK);
-    };
+    {};
 
     ~BfProgram();
+
+    void dfs(std::function<void(BasicBlock*)> callback) {
+        std::unordered_set<BasicBlock*> visited;
+        _dfs(cfg, visited, callback);
+    }
+
+    void bfs(std::function<void(BasicBlock*)> callback) {
+        _bfs(cfg, callback);
+    }
 
     void generate_cfg() {
         cfg = _generate_cfg(0);
@@ -56,4 +64,3 @@ public:
 
     BasicBlock *cfg;
 };
-
