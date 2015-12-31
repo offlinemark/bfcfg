@@ -36,8 +36,8 @@ class BfProgram {
     void _dfs(BasicBlock *cfg,
                 std::unordered_set<BasicBlock*> &visited,
                 std::function<void(BasicBlock*)> callback);
-    void _bfs(BasicBlock *cfg, 
-                std::function<void(BasicBlock*)> callback);
+    void _bfs(BasicBlock *cfg, void *context,
+                std::function<void(void*,BasicBlock*)> callback);
 
 public:
     BfProgram(const std::string code):
@@ -54,8 +54,8 @@ public:
         _dfs(cfg, visited, callback);
     }
 
-    void bfs(std::function<void(BasicBlock*)> callback) {
-        _bfs(cfg, callback);
+    void bfs(void *context, std::function<void(void*,BasicBlock*)> callback) {
+        _bfs(cfg, context, callback);
     }
 
     void generate_cfg() {

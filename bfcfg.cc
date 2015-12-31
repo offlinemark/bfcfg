@@ -17,8 +17,8 @@ const std::unordered_set<char> BfProgram::BF_CF_INSTRS{BF_INSTR_SKIPFWD,
         BF_INSTR_SKIPBACK};
 
 BfProgram::~BfProgram() {
-    dfs([](BasicBlock *cfg){
-        delete cfg;
+    dfs([](BasicBlock *bb){
+        delete bb;
     });
 }
 
@@ -101,12 +101,17 @@ void BfProgram::_dfs(BasicBlock *cfg,
         return;
     }
 
+    // TODO: this two lines are here because the destructor actually just calls
+    // this function with a `delete bb;` callback to destroy the cfg.
+    // After it destroys the bb, we can't use it, so we need to use those
+    // saved pointers.
+    // To improve this, I should learn how to use cpp smart pointers to
+    // remove the need for a destructor and automatically handle dealloc
     BasicBlock *saved_true_bb = cfg->true_bb;
     BasicBlock *saved_false_bb = cfg->false_bb;
 
     visited.emplace(cfg);
     callback(cfg);
-    /* delete cfg; */
 
     if (saved_true_bb) {
         _dfs(saved_true_bb, visited, callback);
@@ -116,8 +121,8 @@ void BfProgram::_dfs(BasicBlock *cfg,
     }
 }
 
-void BfProgram::_bfs(BasicBlock *cfg,
-                std::function<void(BasicBlock*)> callback) {
+void BfProgram::_bfs(BasicBlock *cfg, void *context,
+                std::function<void(void*,BasicBlock*)> callback) {
     std::queue<BasicBlock*> q;
     std::unordered_set<BasicBlock*> visited;
 
@@ -130,7 +135,7 @@ void BfProgram::_bfs(BasicBlock *cfg,
             continue;
         }
         visited.emplace(bb);
-        callback(bb);
+        callback(context, bb);
         if (bb->true_bb) {
             q.push(bb->true_bb);
         }

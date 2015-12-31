@@ -4,9 +4,16 @@
 #include <cstdio>
 #include <queue>
 
-void bfs_callback_dot(BasicBlock *bb) {
+struct cntxt_struct {
+    unsigned cnt;
+};
+
+void bfs_callback_dot(void *context, BasicBlock *bb) {
     // Example line this function produces
     // 0[shape=record,label="{0 | +++[}"];0->4;0->18;
+
+    struct cntxt_struct *x = (struct cntxt_struct*) context;
+    x->cnt++;
 
     std::cout << bb->addr << "[shape=record,label=\"{" << bb->addr
         << " | ";
@@ -36,7 +43,8 @@ void bfs_callback_dot(BasicBlock *bb) {
 }
 
 int main(int argc, char **argv) {
-    std::string code = "+++[->,.[+++---]<]---";
+    /* std::string code = "+++[->,.[+++---]<]---"; */
+    std::string code = "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]";
     /* std::string code = "+++[->,.<]"; */
     /* std::string code = "+++[->,.<]---"; */
     /* std::string code = ",."; */
@@ -44,8 +52,10 @@ int main(int argc, char **argv) {
     BfProgram prog {code};
     prog.generate_cfg();
     std::cout << "digraph graf {\n";
-    prog.bfs(bfs_callback_dot);
+    struct cntxt_struct yo{};
+    prog.bfs(&yo, bfs_callback_dot);
     std::cout << "None[shape=record];\n";
     std::cout << "}\n";
+    /* std::cout << "Num basic blocks " << yo.cnt << std::endl; */
     return 0;
 }
