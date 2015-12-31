@@ -54,6 +54,8 @@ public:
         _dfs(cfg, visited, callback);
     }
 
+    // TODO: Instead of using a void*, maybe make a CallBackContext superclass
+    // that you subclass?
     void bfs(void *context, std::function<void(void*,BasicBlock*)> callback) {
         _bfs(cfg, context, callback);
     }
