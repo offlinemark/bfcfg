@@ -53,7 +53,7 @@ BasicBlock *BfProgram::generate_bb(size_t pc) const {
         bb->true_addr = brackets.at(tmp_pc) + 1;
         bb->false_addr = tmp_pc + 1;
 
-        bb->true_bb = bb;
+        bb->true_bb = bb->addr == bb->true_addr ? bb : generate_bb(bb->true_addr);
     }
 
     cache.emplace(pc, bb);

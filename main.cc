@@ -24,27 +24,25 @@ void bfs_callback_dot(void *context, BasicBlock *bb) {
     }
     std::cout << "}\"];";
 
-    std::cout << bb->addr << "->";
+    std::cout << bb->addr << ":s->";
     if (bb->true_bb)
         std::cout << bb->true_bb->addr;
     else
         std::cout << "None";
-    if (bb == bb->true_bb)
-        std::cout << "[dir=back]";
-    std::cout << ";";
+    std::cout << ":n;";
 
-    std::cout << bb->addr << "->";
+    std::cout << bb->addr << ":s->";
     if (bb->false_bb)
         std::cout << bb->false_bb->addr;
     else
         std::cout << "None";
-    std::cout << ";";
+    std::cout << ":n;";
     std::cout << std::endl;
 }
 
 int main(int argc, char **argv) {
-    /* std::string code = "+++[->,.[+++---]<]---"; */
-    std::string code = "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]";
+    std::string code = "+++[->,.[+++---]<]---";
+    /* std::string code = "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]"; */
     /* std::string code = "+++[->,.<]"; */
     /* std::string code = "+++[->,.<]---"; */
     /* std::string code = ",."; */
