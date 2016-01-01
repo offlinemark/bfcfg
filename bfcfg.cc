@@ -37,8 +37,7 @@ BasicBlock *BfProgram::generate_bb(size_t pc) const {
     size_t tmp_pc = pc;
 
     while (tmp_pc <= last_valid_pc && !BF_CF_INSTRS.count(code[tmp_pc])) {
-        bb->instructions.emplace_back(code[tmp_pc]);
-        tmp_pc++;
+        bb->instructions.emplace_back(code[tmp_pc++]);
     }
 
     if (tmp_pc > last_valid_pc) {
