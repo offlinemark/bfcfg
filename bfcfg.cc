@@ -32,7 +32,7 @@ BasicBlock *BfProgram::generate_bb(size_t pc) const {
         return cache[pc];
     }
 
-    BasicBlock *bb = new BasicBlock;
+    BasicBlock *bb = new BasicBlock{};
     bb->addr = pc;
     size_t tmp_pc = pc;
 
@@ -44,16 +44,14 @@ BasicBlock *BfProgram::generate_bb(size_t pc) const {
     if (tmp_pc > last_valid_pc) {
         bb->true_addr = tmp_pc;
         bb->false_addr = tmp_pc;
-    } else if (code[tmp_pc] == BF_INSTR_SKIPFWD) {
-        bb->instructions.emplace_back(BF_INSTR_SKIPFWD);
-        bb->true_addr = tmp_pc + 1;
-        bb->false_addr = brackets.at(tmp_pc) + 1;
-    } else if (code[tmp_pc] == BF_INSTR_SKIPBACK) {
-        bb->instructions.emplace_back(BF_INSTR_SKIPBACK);
+    } else {
+        bb->instructions.emplace_back(code[tmp_pc]);
         bb->true_addr = brackets.at(tmp_pc) + 1;
         bb->false_addr = tmp_pc + 1;
 
-        bb->true_bb = bb->addr == bb->true_addr ? bb : generate_bb(bb->true_addr);
+        if (code[tmp_pc] == BF_INSTR_SKIPBACK) {
+            bb->true_bb = bb->addr == bb->true_addr ? bb : generate_bb(bb->true_addr);
+        }
     }
 
     cache.emplace(pc, bb);

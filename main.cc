@@ -2,6 +2,7 @@
 #include "bfcfg.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <queue>
 
 struct cntxt_struct {
@@ -29,25 +30,25 @@ void bfs_callback_dot(void *context, BasicBlock *bb) {
         std::cout << bb->true_bb->addr;
     else
         std::cout << "None";
-    std::cout << ":n;";
+    std::cout << ":c[label=\"T\"];";
 
     std::cout << bb->addr << ":s->";
     if (bb->false_bb)
         std::cout << bb->false_bb->addr;
     else
         std::cout << "None";
-    std::cout << ":n;";
+    std::cout << ":c[label=\"F\"];";
     std::cout << std::endl;
 }
 
 int main(int argc, char **argv) {
-    std::string code = "+++[->,.[+++---]<]---";
-    /* std::string code = "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]"; */
-    /* std::string code = "+++[->,.<]"; */
-    /* std::string code = "+++[->,.<]---"; */
-    /* std::string code = ",."; */
+    std::string code[] = {"+++[->,.[+++---]<]---",
+     "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]",
+     "+++[->,.<]",
+     "+++[->,.<]---",
+     ",."};
 
-    BfProgram prog {code};
+    BfProgram prog {code[atoi(argv[1])]};
     prog.generate_cfg();
     std::cout << "digraph graf {\n";
     struct cntxt_struct yo{};
